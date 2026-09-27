@@ -63,7 +63,15 @@ const GUILD_ID =
 
 
 const OWNER_DISCORD_ID =
-	process.env.OWNER_DISCORD_ID;
+	String(
+		process.env.OWNER_DISCORD_ID
+		|| ""
+	)
+	.trim()
+	.replace(
+		/^["']|["']$/g,
+		""
+	);
 
 
 const UNIVERSE_ID =
@@ -1419,29 +1427,100 @@ client.on(
 			=== "setrole"
 		) {
 
-			//----------------------------------------------
-			// Extra owner protection.
-			//----------------------------------------------
+			//--------------------------------------------------
+            // OWNER AUTHORIZATION
+            //
+            // Accept either:
+            //
+            // 1. OWNER_DISCORD_ID from Render
+            // 2. The actual Discord server owner
+            //--------------------------------------------------
 
-			if (
-				interaction.user.id
-				!== OWNER_DISCORD_ID
-			) {
-
-				await interaction.reply({
-
-					content:
-						"Only the SYMBIOSIS owner can use this command.",
-
-					ephemeral:
-						true,
-
-				});
+            const callerId =
+	            String(
+		            interaction.user.id
+	            );
 
 
-				return;
+            const configuredOwnerId =
+	            String(
+		            OWNER_DISCORD_ID
+		            || ""
+	            )
+	.           trim();
 
-			}
+
+            let actualServerOwnerId =
+	            "";
+
+
+            try {
+
+	if (interaction.guild) {
+
+		const owner =
+			await interaction.guild.fetchOwner();
+
+
+		actualServerOwnerId =
+			String(
+				owner.id
+			);
+
+	}
+
+            }
+            catch (error) {
+
+	            console.error(
+		            "[OWNER CHECK] Could not fetch server owner:",
+		            error
+	            );
+
+            }
+
+
+            const isConfiguredOwner =
+	            callerId
+	            === configuredOwnerId;
+
+
+            const isActualServerOwner =
+	            callerId
+	            === actualServerOwnerId;
+
+
+            console.log(
+	            "[OWNER CHECK]",
+	            {
+		            callerId,
+		            configuredOwnerId,
+		            actualServerOwnerId,
+		            isConfiguredOwner,
+		            isActualServerOwner,
+	            }
+            );
+
+
+            if (
+	            !isConfiguredOwner
+            	&& !isActualServerOwner
+            ) {
+
+	            await interaction.reply({
+
+		            content:
+			            "Only the SYMBIOSIS owner can use this command.",
+
+		            ephemeral:
+		            	true,
+
+	            });
+
+
+	            return;
+
+            }
 
 
 			const discordUser =
