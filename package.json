@@ -1,19 +1,15 @@
 {
   "name": "symbiosis-discord-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "Discord integration for SYMBIOSIS",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "better-sqlite3": "^13.0.3",
-    "discord.js": "^14.27.0",
-    "dotenv": "^18.0.4",
-    "express": "^5.2.1"
+    "better-sqlite3": "^12.0.0",
+    "discord.js": "^14.0.0",
+    "dotenv": "^17.0.0",
+    "express": "^5.0.0"
   }
 }
