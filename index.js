@@ -713,6 +713,12 @@ async function calculateDesiredRoles(
 				robloxId
 			);
 
+            console.log(
+	            "[ROLE DATA]",
+	            robloxId,
+	            manualRoles
+            );
+
 	}
 	catch (error) {
 
