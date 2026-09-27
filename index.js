@@ -757,10 +757,10 @@ async function calculateDesiredRoles(
 		}
 
 
-		if (manualRoles.VETERAN === true) {
+		if (manualRoles.Veteran === true) {
 
 			desired.add(
-				"VETERAN"
+				"Veteran"
 			);
 
 		}
@@ -1172,8 +1172,8 @@ const setRoleCommand =
 						},
 
 						{
-							name: "VETERAN",
-							value: "VETERAN",
+							name: "Veteran",
+							value: "Veteran",
 						},
 
 						{
