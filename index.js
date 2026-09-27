@@ -705,29 +705,20 @@ async function calculateDesiredRoles(
 		null;
 
 
-	try {
+    	manualRoles =
+	    await getDataStoreEntry(
+	    	PROFILE_ROLE_STORE,
+	    	robloxId
+	    );
 
-		manualRoles =
-			await getDataStoreEntry(
-				PROFILE_ROLE_STORE,
-				robloxId
-			);
 
-            console.log(
-	            "[ROLE DATA]",
-	            robloxId,
-	            manualRoles
-            );
-
-	}
-	catch (error) {
-
-		console.error(
-			"[ROLES] Manual-role lookup failed:",
-			error.message
-		);
-
-	}
+    console.log(
+	    "[ROLE DATA]",
+	    robloxId,
+    	JSON.stringify(
+	    	manualRoles
+    	)
+    );
 
 
 	if (
@@ -802,23 +793,20 @@ async function calculateDesiredRoles(
 		null;
 
 
-	try {
+        donationData =
+	        await getDataStoreEntry(
+	        	DONATION_STORE,
+		        robloxId
+	        );
 
-		donationData =
-			await getDataStoreEntry(
-				DONATION_STORE,
-				robloxId
-			);
 
-	}
-	catch (error) {
-
-		console.error(
-			"[ROLES] Donation lookup failed:",
-			error.message
-		);
-
-	}
+        console.log(
+        	"[DONATION DATA]",
+        	robloxId,
+        	JSON.stringify(
+	        	donationData
+        	)
+        );
 
 
 	if (
