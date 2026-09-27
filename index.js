@@ -1677,6 +1677,55 @@ app.use(
 	})
 );
 
+app.get(
+	"/",
+
+	(request, response) => {
+
+		response.send(`
+			<!DOCTYPE html>
+
+			<html>
+				<head>
+					<title>SYMBIOSIS</title>
+
+					<style>
+						body {
+							background: #05080c;
+							color: #eef2f5;
+							font-family: Arial, sans-serif;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							height: 100vh;
+							margin: 0;
+						}
+
+						.box {
+							text-align: center;
+						}
+
+						h1 {
+							letter-spacing: 4px;
+						}
+
+						p {
+							color: #7fdcff;
+						}
+					</style>
+				</head>
+
+				<body>
+					<div class="box">
+						<h1>SYMBIOSIS</h1>
+						<p>Verification service online.</p>
+					</div>
+				</body>
+			</html>
+		`);
+
+	}
+);
 
 //----------------------------------------------------------
 // HEALTH
