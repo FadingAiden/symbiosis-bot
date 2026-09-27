@@ -147,7 +147,7 @@ const ROLE_IDS = {
 	EarlySupporter:
 		process.env.ROLE_EARLY_SUPPORTER,
 
-	VETERAN:
+	Veteran:
 		process.env.ROLE_VETERAN,
 
 	Tester:
