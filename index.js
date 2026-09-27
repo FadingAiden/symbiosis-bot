@@ -765,13 +765,16 @@ async function calculateDesiredRoles(
 		}
 
 
-		if (manualRoles.Veteran === true) {
+        if (
+        	manualRoles.Veteran === true
+        	|| manualRoles.VIP === true
+        ) {
 
-			desired.add(
-				"Veteran"
-			);
+	        desired.add(
+		        "Veteran"
+	        );
 
-		}
+        }
 
 
 		if (manualRoles.Tester === true) {
