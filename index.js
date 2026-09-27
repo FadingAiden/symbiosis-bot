@@ -1383,12 +1383,39 @@ client.on(
 				await refreshTopSupporters();
 
 
-				const desired =
-					await syncMember(
-						interaction.member,
-						link.roblox_id
-					);
+                let desired = null;
 
+                for (
+                	let attempt = 1;
+              	attempt <= 3;
+            	attempt++
+                ) {
+
+                	console.log(
+	                	`[SYNC] Attempt ${attempt}/3 for Roblox ${link.roblox_id}`
+                	);
+
+	                desired =
+	                	await syncMember(
+	                		interaction.member,
+	                		link.roblox_id
+	                	);
+
+                	if (
+	                	attempt < 3
+                	) {
+
+	                	await new Promise(
+		                	resolve =>
+			                	setTimeout(
+			                		resolve,
+		                			2000
+		                		)
+	                	);
+
+	                }
+
+              }
 
 				await interaction.editReply(
 
