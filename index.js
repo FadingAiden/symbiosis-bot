@@ -1803,6 +1803,391 @@ app.get(
 	}
 );
 
+//----------------------------------------------------------
+// ROBLOX CREATOR ROLE ADMIN
+//
+// Roblox has ALREADY written the role to
+// SymbiosisProfileRoles_v1.
+//
+// This endpoint immediately mirrors that exact change to
+// Discord so we don't have to wait for Open Cloud sync.
+//----------------------------------------------------------
+
+const ADMIN_MANUAL_ROLES =
+	new Set([
+
+		"Moderator",
+		"CommunityStaff",
+		"Contributor",
+		"BugHunter",
+		"Veteran",
+		"Tester",
+
+	]);
+
+
+app.post(
+
+	"/roblox/admin-role",
+
+	async (
+		request,
+		response
+	) => {
+
+		try {
+
+			//--------------------------------------------------
+			// AUTHENTICATE ROBLOX SERVER
+			//--------------------------------------------------
+
+			const suppliedSecret =
+				request.headers[
+					"x-symbiosis-secret"
+				];
+
+
+			if (
+				typeof suppliedSecret !== "string"
+				|| suppliedSecret !== SHARED_SECRET
+			) {
+
+				return response
+					.status(401)
+					.json({
+
+						ok:
+							false,
+
+						message:
+							"Unauthorized",
+
+					});
+
+			}
+
+
+			//--------------------------------------------------
+			// INPUT
+			//--------------------------------------------------
+
+			const robloxId =
+				String(
+					request.body.robloxUserId
+					|| ""
+				);
+
+
+			const roleName =
+				String(
+					request.body.roleName
+					|| ""
+				);
+
+
+			const enabled =
+				request.body.enabled;
+
+
+			//--------------------------------------------------
+			// VALIDATE
+			//--------------------------------------------------
+
+			if (
+				!/^\d+$/.test(
+					robloxId
+				)
+			) {
+
+				return response
+					.status(400)
+					.json({
+
+						ok:
+							false,
+
+						message:
+							"Invalid Roblox UserId.",
+
+					});
+
+			}
+
+
+			if (
+				!ADMIN_MANUAL_ROLES.has(
+					roleName
+				)
+			) {
+
+				return response
+					.status(400)
+					.json({
+
+						ok:
+							false,
+
+						message:
+							"Invalid SYMBIOSIS role.",
+
+					});
+
+			}
+
+
+			if (
+				typeof enabled !== "boolean"
+			) {
+
+				return response
+					.status(400)
+					.json({
+
+						ok:
+							false,
+
+						message:
+							"Invalid enabled value.",
+
+					});
+
+			}
+
+
+			//--------------------------------------------------
+			// FIND VERIFIED DISCORD ACCOUNT
+			//--------------------------------------------------
+
+			const link =
+				getLinkByRoblox(
+					robloxId
+				);
+
+
+			if (!link) {
+
+				return response.json({
+
+					ok:
+						true,
+
+					discordSynced:
+						false,
+
+					message:
+						"Roblox role saved. This Roblox account is not linked to Discord yet.",
+
+				});
+
+			}
+
+
+			//--------------------------------------------------
+			// FETCH DISCORD SERVER
+			//--------------------------------------------------
+
+			const guild =
+				await client.guilds.fetch(
+					GUILD_ID
+				);
+
+
+			await guild.roles.fetch();
+
+
+			//--------------------------------------------------
+			// FETCH DISCORD MEMBER
+			//--------------------------------------------------
+
+			let member;
+
+
+			try {
+
+				member =
+					await guild.members.fetch(
+						link.discord_id
+					);
+
+			}
+			catch (error) {
+
+				return response.json({
+
+					ok:
+						true,
+
+					discordSynced:
+						false,
+
+					message:
+						"Roblox role saved. Linked Discord account is not currently in the server.",
+
+				});
+
+			}
+
+
+			//--------------------------------------------------
+			// FIND DISCORD ROLE
+			//--------------------------------------------------
+
+			const roleId =
+				ROLE_IDS[
+					roleName
+				];
+
+
+			if (!roleId) {
+
+				return response
+					.status(500)
+					.json({
+
+						ok:
+							false,
+
+						message:
+							`Missing Discord role ID for ${roleName}.`,
+
+					});
+
+			}
+
+
+			const role =
+				guild.roles.cache.get(
+					roleId
+				);
+
+
+			if (!role) {
+
+				return response
+					.status(500)
+					.json({
+
+						ok:
+							false,
+
+						message:
+							`Discord role ${roleName} could not be found.`,
+
+					});
+
+			}
+
+
+			//--------------------------------------------------
+			// HIERARCHY CHECK
+			//--------------------------------------------------
+
+			if (!role.editable) {
+
+				return response
+					.status(500)
+					.json({
+
+						ok:
+							false,
+
+						message:
+							`Discord bot cannot manage ${roleName}. Check role hierarchy.`,
+
+					});
+
+			}
+
+
+			//--------------------------------------------------
+			// APPLY DIRECTLY
+			//--------------------------------------------------
+
+			if (enabled) {
+
+				await member.roles.add(
+
+					roleId,
+
+					"SYMBIOSIS creator role admin"
+
+				);
+
+			}
+			else {
+
+				await member.roles.remove(
+
+					roleId,
+
+					"SYMBIOSIS creator role admin"
+
+				);
+
+			}
+
+
+			//--------------------------------------------------
+			// LOG
+			//--------------------------------------------------
+
+			console.log(
+
+				"[ADMIN ROLE]",
+
+				robloxId,
+
+				link.discord_id,
+
+				roleName,
+
+				enabled
+
+			);
+
+
+			return response.json({
+
+				ok:
+					true,
+
+				discordSynced:
+					true,
+
+				message:
+					enabled
+						? `Discord ${roleName} role assigned immediately.`
+						: `Discord ${roleName} role removed immediately.`,
+
+			});
+
+		}
+		catch (error) {
+
+			console.error(
+				"[ADMIN ROLE]",
+				error
+			);
+
+
+			return response
+				.status(500)
+				.json({
+
+					ok:
+						false,
+
+					message:
+						"Discord role update failed.",
+
+				});
+
+		}
+
+	}
+
+);
+
 
 //----------------------------------------------------------
 // ROBLOX REDEEMS VERIFICATION CODE
